@@ -1,0 +1,3 @@
+dependencies {
+    implementation "org.axonframework:axon-spring-boot-starter:${axon_framework_version}"
+}
