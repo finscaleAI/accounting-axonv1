@@ -1,0 +1,16 @@
+{
+  "fluentMethods": true,
+  "clientRootFolder": "accounting",
+  "relationships": [],
+  "fields": [],
+  "changelogDate": "20200727185228",
+  "dto": "no",
+  "searchEngine": false,
+  "service": "no",
+  "entityTableName": "token_entry",
+  "databaseType": "sql",
+  "readOnly": false,
+  "jpaMetamodelFiltering": false,
+  "pagination": "no",
+  "microserviceName": "accounting"
+}

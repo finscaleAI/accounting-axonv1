@@ -36,6 +36,7 @@ class SecurityConfiguration(private val oAuth2Properties: OAuth2Properties) : Re
         .and()
             .authorizeRequests()
             .antMatchers("/api/**").authenticated()
+            .antMatchers("/unsecured/**").permitAll()
             .antMatchers("/management/health").permitAll()
             .antMatchers("/management/info").permitAll()
             .antMatchers("/management/prometheus").permitAll()

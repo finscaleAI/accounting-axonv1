@@ -1,0 +1,52 @@
+{
+  "name": "LedgerView",
+  "fields": [
+    {
+      "fieldName": "identifier",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique"]
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "type",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "totalValue",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "showAccountsInChart",
+      "fieldType": "Boolean"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "ledgerView",
+      "otherEntityRelationshipName": "ledgerView",
+      "relationshipName": "parentLedger",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20200727153320",
+  "entityTableName": "ledger_view",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "accounting",
+  "applications": "*",
+  "microserviceName": "accounting"
+}
