@@ -8,6 +8,7 @@ import javax.persistence.*
 import javax.validation.constraints.*
 import org.hibernate.annotations.Cache
 import org.hibernate.annotations.CacheConcurrencyStrategy
+import org.muellners.finscale.accounting.domain.AccountType
 
 /**
  * A LedgerView.
@@ -27,7 +28,7 @@ data class LedgerView(
     var name: String? = null,
 
     @Column(name = "type")
-    var type: String? = null,
+    var type: AccountType? = null,
 
     @Column(name = "description")
     var description: String? = null,
@@ -38,8 +39,12 @@ data class LedgerView(
     @Column(name = "show_accounts_in_chart")
     var showAccountsInChart: Boolean? = null,
 
-    @ManyToOne @JsonIgnoreProperties(value = ["ledgerViews"], allowSetters = true)
-    var parentLedger: LedgerView? = null
+    @ManyToOne
+    @JsonIgnoreProperties(value = ["parentLedger"], allowSetters = true)
+    var parentLedger: LedgerView? = null,
+
+    @OneToMany(mappedBy = "parentLedger")
+    var subledgerViews: MutableList<LedgerView> = mutableListOf()
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 ) : Serializable {

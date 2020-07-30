@@ -22,16 +22,16 @@
                 <constraints nullable="false" />
             </column>
             <column name="type" type="varchar(255)">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <column name="description" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
             <column name="total_value" type="decimal(21,2)">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <column name="show_accounts_in_chart" type="boolean">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <column name="parent_ledger_id" type="uuid">
                 <constraints nullable="true" />

@@ -7,16 +7,16 @@ import org.axonframework.eventsourcing.EventSourcingHandler
 import org.axonframework.modelling.command.AggregateIdentifier
 import org.axonframework.modelling.command.AggregateLifecycle
 import org.axonframework.spring.stereotype.Aggregate
+import org.muellners.finscale.accounting.domain.AccountType
 import org.muellners.finscale.accounting.domain.ledger.commands.CreateLedgerCommand
 import org.muellners.finscale.accounting.domain.ledger.commands.DeleteLedgerCommand
+import org.muellners.finscale.accounting.domain.ledger.commands.ModifyLedgerCommand
 import org.muellners.finscale.accounting.domain.ledger.events.LedgerCreatedEvent
 import org.muellners.finscale.accounting.domain.ledger.events.LedgerDeletedEvent
+import org.muellners.finscale.accounting.domain.ledger.events.LedgerModifiedEvent
 
 @Aggregate
 class Ledger() {
-
-//    @Autowired
-//    lateinit var queryGateway: QueryGateway
 
     @AggregateIdentifier
     lateinit var ledgerId: UUID
@@ -25,7 +25,7 @@ class Ledger() {
 
     lateinit var name: String
 
-    lateinit var type: String
+    lateinit var type: AccountType
 
     var description: String? = null
 
@@ -38,23 +38,13 @@ class Ledger() {
     @CommandHandler
     constructor(command: CreateLedgerCommand) : this() {
 
-        val totalValue = command.totalValue ?: BigDecimal.ZERO
-        val showAccountsInChart = command.showAccountsInChart ?: true
-
         if (command.id == null) {
             throw IllegalArgumentException("Ledger ID cannot be null!")
         }
 
         if (command.identifier == null) {
             throw IllegalArgumentException("Ledger identifier cannot be null!")
-        } // else {
-//            val queryMessage = LedgerIdentifierExistsQuery(command.identifier)
-//            val identifierExistsFuture = queryGateway.query(queryMessage, ResponseTypes.instanceOf(Boolean::class.java))
-//
-//            if (identifierExistsFuture.get()) {
-//                throw LedgerIdentifierExistsException()
-//            }
-//        }
+        }
 
         if (command.name == null) {
             throw IllegalArgumentException("Ledger name cannot be null!")
@@ -64,12 +54,16 @@ class Ledger() {
             throw IllegalArgumentException("Ledger type cannot be null!")
         }
 
+        val accountType = AccountType.valueOf(command.type)
+        val totalValue = command.totalValue ?: BigDecimal.ZERO
+        val showAccountsInChart = command.showAccountsInChart ?: true
+
         AggregateLifecycle.apply(
             LedgerCreatedEvent(
                 id = command.id,
                 identifier = command.identifier,
                 name = command.name,
-                type = command.type,
+                type = accountType,
                 description = command.description,
                 totalValue = totalValue,
                 showAccountsInChart = showAccountsInChart,
@@ -79,10 +73,26 @@ class Ledger() {
     }
 
     @CommandHandler
-    fun handle(command: DeleteLedgerCommand) {
-        AggregateLifecycle.apply(LedgerDeletedEvent(command.id.toString()))
-        AggregateLifecycle.markDeleted()
+    fun handle(command: ModifyLedgerCommand) {
+
+        if (command.id == null) {
+            throw IllegalArgumentException("Ledger ID cannot be null!")
+        }
+
+        if (command.name == null) {
+            throw IllegalArgumentException("Ledger name cannot be null!")
+        }
+
+        val description = command.description ?: this.description
+        val showAccountsInChart = command.showAccountsInChart ?: this.showAccountsInChart
+
+        AggregateLifecycle.apply(LedgerModifiedEvent(command.id, command.name, description, showAccountsInChart))
     }
+
+    @CommandHandler
+    fun handle(command: DeleteLedgerCommand) = AggregateLifecycle.apply(
+        LedgerDeletedEvent(command.id)
+    )
 
     @EventSourcingHandler
     fun on(event: LedgerCreatedEvent) {
@@ -94,5 +104,17 @@ class Ledger() {
         this.totalValue = event.totalValue
         this.showAccountsInChart = event.showAccountsInChart
         this.parentLedgerId = event.parentLedgerId
+    }
+
+    @EventSourcingHandler
+    fun on(event: LedgerModifiedEvent) {
+        this.name = event.name
+        this.description = event.description
+        this.showAccountsInChart = event.showAccountsInChart
+    }
+
+    @EventSourcingHandler
+    fun on(event: LedgerDeletedEvent) {
+        AggregateLifecycle.markDeleted()
     }
 }
