@@ -1,0 +1,44 @@
+{
+  "name": "Transaction",
+  "fields": [
+    {
+      "fieldName": "transactionSide",
+      "fieldType": "TransactionSide",
+      "fieldValues": "DEBIT,CREDIT",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "amount",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "ledgerAccount",
+      "otherEntityRelationshipName": "transaction",
+      "relationshipName": "account",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "journalEntry",
+      "otherEntityRelationshipName": "transactions",
+      "relationshipName": "journalEntry",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20200816064339",
+  "entityTableName": "transaction",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "accounting",
+  "applications": "*",
+  "microserviceName": "accounting"
+}

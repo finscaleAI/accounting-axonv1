@@ -8,10 +8,10 @@ import javax.validation.Valid
 import org.axonframework.commandhandling.gateway.CommandGateway
 import org.axonframework.messaging.responsetypes.ResponseTypes
 import org.axonframework.queryhandling.QueryGateway
-import org.muellners.finscale.accounting.domain.ledger.commands.CreateLedgerCommand
-import org.muellners.finscale.accounting.domain.ledger.commands.DeleteLedgerCommand
-import org.muellners.finscale.accounting.domain.ledger.commands.ModifyLedgerCommand
-import org.muellners.finscale.accounting.domain.ledger.queries.FindAllLedgerQuery
+import org.muellners.finscale.accounting.domain.ledger.api.CreateLedgerCommand
+import org.muellners.finscale.accounting.domain.ledger.api.DeleteLedgerCommand
+import org.muellners.finscale.accounting.domain.ledger.api.ModifyLedgerCommand
+import org.muellners.finscale.accounting.domain.ledger.queries.FindAllLedgersQuery
 import org.muellners.finscale.accounting.domain.ledger.queries.FindLedgerQuery
 import org.muellners.finscale.accounting.domain.ledger.queries.LedgerIdentifierExistsQuery
 import org.muellners.finscale.accounting.domain.ledger.queries.SubLedgersExistQuery
@@ -24,13 +24,13 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-private const val ENTITY_NAME = "accountingLedgerView"
+private const val ENTITY_NAME = "accountingLedger"
 /**
- * REST controller for managing [org.muellners.finscale.accounting.domain.LedgerView].
+ * REST controller for managing [org.muellners.finscale.accounting.domain.ledger.views.LedgerView].
  */
 @RestController
 @RequestMapping("/unsecured/ledgers")
-class LedgerViewResource(
+class LedgerResource(
     private val commandGateway: CommandGateway,
     private val queryGateway: QueryGateway
 ) {
@@ -40,30 +40,30 @@ class LedgerViewResource(
     private var applicationName: String? = null
 
     /**
-     * `POST  /ledger-views` : Create a new ledgerView.
+     * `POST  /ledgers` : Create a new ledger.
      *
-     * @param ledgerDTO the ledgerViewDTO to create.
-     * @return the [ResponseEntity] with status `201 (Created)` and with body the new ledgerViewDTO, or with status `400 (Bad Request)` if the ledgerView has already an ID.
+     * @param ledgerDTO the ledgerDTO to create.
+     * @return the [ResponseEntity] with status `201 (Created)` and with body the new ledgerDTO, or with status `400 (Bad Request)` if the ledgerView has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping
-    fun createLedgerView(@Valid @RequestBody ledgerDTO: LedgerDTO): CompletableFuture<LedgerDTO> {
-        log.debug("REST request to save LedgerView : $ledgerDTO")
+    fun createLedger(@Valid @RequestBody ledgerDTO: LedgerDTO): CompletableFuture<LedgerDTO> {
+        log.debug("REST request to save Ledger : $ledgerDTO")
         if (ledgerDTO.id != null) {
             throw BadRequestAlertException(
-                "A new ledgerView cannot already have an ID",
+                "A new ledger cannot already have an ID",
                 ENTITY_NAME, "idexists"
             )
         }
 
         if (ledgerDTO.identifier != null) {
-            val identifierExistsFuture = queryGateway.query(
+            val identifierExists = queryGateway.query(
                 LedgerIdentifierExistsQuery(ledgerDTO.identifier!!),
-                ResponseTypes.instanceOf(Boolean::class.java))
+                ResponseTypes.instanceOf(Boolean::class.java)).get()
 
-            if (identifierExistsFuture.get()) {
+            if (identifierExists) {
                 throw BadRequestAlertException(
-                    "A new ledgerView with the same identifier exists",
+                    "A ledger with the same identifier exists",
                     ENTITY_NAME, "identifierexists"
                 )
             }
@@ -84,25 +84,24 @@ class LedgerViewResource(
     }
 
     /**
-     * `PUT  /ledger-views` : Updates an existing ledgerView.
+     * `PUT  /ledgers` : Updates an existing ledger.
      *
-     * @param ledgerDTO the ledgerViewDTO to update.
-     * @return the [ResponseEntity] with status `200 (OK)` and with body the updated ledgerViewDTO,
-     * or with status `400 (Bad Request)` if the ledgerViewDTO is not valid,
-     * or with status `500 (Internal Server Error)` if the ledgerViewDTO couldn't be updated.
+     * @param updateLedgerDTO the ledgerDTO to update.
+     * @return the [ResponseEntity] with status `200 (OK)` and with body the updated ledgerDTO,
+     * or with status `400 (Bad Request)` if the ledgerDTO is not valid,
+     * or with status `500 (Internal Server Error)` if the ledgerDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
-    fun updateLedgerView(
-        @PathVariable id: String,
+    fun updateLedger(
+        @PathVariable id: UUID,
         @Valid @RequestBody updateLedgerDTO: UpdateLedgerDTO
     ): ResponseEntity<Void> {
-        updateLedgerDTO.id = UUID.fromString(id)
-        log.debug("REST request to update LedgerView : $updateLedgerDTO")
+        log.debug("REST request to update Ledger : $updateLedgerDTO")
 
         commandGateway.send<LedgerDTO>(
             ModifyLedgerCommand(
-                id = updateLedgerDTO.id,
+                id = id,
                 name = updateLedgerDTO.name,
                 description = updateLedgerDTO.description,
                 showAccountsInChart = updateLedgerDTO.showAccountsInChart
@@ -112,33 +111,36 @@ class LedgerViewResource(
         return ResponseEntity.ok()
             .headers(
                 HeaderUtil.createEntityUpdateAlert(
-                    applicationName, true, ENTITY_NAME, id
+                    applicationName, true, ENTITY_NAME, id.toString()
                 )
             ).build()
     }
 
     /**
-     * `GET  /ledger-views` : get all the ledgerViews.
+     * `GET  /ledgers` : get all the ledgers.
      *
 
-     * @return the [ResponseEntity] with status `200 (OK)` and the list of ledgerViews in body.
+     * @return the [ResponseEntity] with status `200 (OK)` and the list of ledgers in body.
      */
     @GetMapping
-    fun getAllLedgerViews(): CompletableFuture<MutableList<LedgerView>> {
-        log.debug("REST request to get all LedgerViews")
+    fun getAllLedgers(): CompletableFuture<MutableList<LedgerView>> {
+        log.debug("REST request to get all Ledgers")
 
-        return queryGateway.query(FindAllLedgerQuery(), ResponseTypes.multipleInstancesOf(LedgerView::class.java))
+        return queryGateway.query(
+            FindAllLedgersQuery(),
+            ResponseTypes.multipleInstancesOf(LedgerView::class.java)
+        )
     }
 
     /**
-     * `GET  /ledgers/:id` : get the "id" ledgerView.
+     * `GET  /ledgers/:id` : get the "id" ledger.
      *
-     * @param id the id of the ledgerViewDTO to retrieve.
-     * @return the [ResponseEntity] with status `200 (OK)` and with body the ledgerViewDTO, or with status `404 (Not Found)`.
+     * @param id the id of the ledgerDTO to retrieve.
+     * @return the [ResponseEntity] with status `200 (OK)` and with body the ledgerDTO, or with status `404 (Not Found)`.
      */
     @GetMapping("/{id}")
-    fun getLedgerView(@PathVariable id: String): CompletableFuture<LedgerView> {
-        log.debug("REST request to get LedgerView : $id")
+    fun getLedger(@PathVariable id: UUID): CompletableFuture<LedgerView> {
+        log.debug("REST request to get Ledger : $id")
 
         return queryGateway.query(
             FindLedgerQuery(id),
@@ -147,29 +149,32 @@ class LedgerViewResource(
     }
 
     /**
-     *  `DELETE  /ledger-views/:id` : delete the "id" ledgerView.
+     *  `DELETE  /ledgers/:id` : delete the "id" ledger.
      *
-     * @param id the id of the ledgerViewDTO to delete.
+     * @param id the id of the ledgerDTO to delete.
      * @return the [ResponseEntity] with status `204 (NO_CONTENT)`.
      */
     @DeleteMapping("/{id}")
-    fun deleteLedgerView(@PathVariable id: String): ResponseEntity<Void> {
-        log.debug("REST request to delete LedgerView : $id")
+    fun deleteLedger(@PathVariable id: UUID): ResponseEntity<Void> {
+        log.debug("REST request to delete Ledger : $id")
 
-        val subLedgersExistFuture = queryGateway.query(
+        val subLedgersExist = queryGateway.query(
             SubLedgersExistQuery(parentLedgerId = id),
-            ResponseTypes.instanceOf(Boolean::class.java))
+            ResponseTypes.instanceOf(Boolean::class.java)).get()
 
-        if (subLedgersExistFuture.get()) {
+        if (subLedgersExist) {
             throw BadRequestAlertException(
                 "The ledger cannot be deleted as it has subledgers",
-                ENTITY_NAME, "hassubledgers"
+                ENTITY_NAME, "has subledgers"
             )
         }
 
-        commandGateway.send<String>(DeleteLedgerCommand(UUID.fromString(id)))
+        commandGateway.send<String>(DeleteLedgerCommand(id))
 
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build()
+            .headers(
+                HeaderUtil.createEntityDeletionAlert(
+                    applicationName, true, ENTITY_NAME, id.toString())
+            ).build()
     }
 }

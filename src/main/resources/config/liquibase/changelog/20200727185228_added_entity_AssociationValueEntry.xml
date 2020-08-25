@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+        <changeSet id="00000000000000" author="kevinem">
+        <createSequence sequenceName="hibernate_sequence" startValue="1050" incrementBy="50"/>
+    </changeSet>
+
+    <!--
+        Added the entity AssociationValueEntry.
+    -->
+    <changeSet id="20200727185228-1" author="kevinem">
+        <createTable tableName="association_value_entry">
+            <column name="id" type="long">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="saga_id" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="association_key" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="association_value" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="saga_type" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="20200727185228-1-relations" author="kevinem">
+
+    </changeSet>
+
+</databaseChangeLog>

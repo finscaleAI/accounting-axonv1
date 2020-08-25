@@ -4,9 +4,10 @@ import java.io.Serializable
 import java.math.BigDecimal
 import java.util.*
 import javax.validation.constraints.NotNull
+import org.muellners.finscale.accounting.domain.enumeration.LedgerType
 
 /**
- * A DTO for the [org.muellners.finscale.accounting.domain.LedgerView] entity.
+ * A DTO for the [org.muellners.finscale.accounting.domain.Ledger] entity.
  */
 data class LedgerDTO(
 
@@ -18,15 +19,19 @@ data class LedgerDTO(
     @get: NotNull
     var name: String? = null,
 
-    var type: String? = null,
+    @get: NotNull
+    var type: LedgerType? = null,
 
     var description: String? = null,
 
     var totalValue: BigDecimal? = null,
 
+    @get: NotNull
     var showAccountsInChart: Boolean? = null,
 
-    var parentLedgerId: UUID? = null
+    var parentLedgerId: UUID? = null,
+
+    var ledgerId: Long? = null
 
 ) : Serializable {
 

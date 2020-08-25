@@ -1,0 +1,55 @@
+{
+  "name": "LedgerAccountEntry",
+  "fields": [
+    {
+      "fieldName": "side",
+      "fieldType": "TransactionSide",
+      "fieldValues": "DEBIT,CREDIT",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "amount",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "balance",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "processedOn",
+      "fieldType": "LocalDate",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-one",
+      "otherEntityName": "transaction",
+      "otherEntityRelationshipName": "ledgerAccountEntry",
+      "relationshipName": "transaction",
+      "otherEntityField": "id",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "ledgerAccount",
+      "otherEntityRelationshipName": "ledgerAccountEntry",
+      "relationshipName": "account",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20200816064139",
+  "entityTableName": "ledger_account_entry",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "accounting",
+  "applications": "*",
+  "microserviceName": "accounting"
+}

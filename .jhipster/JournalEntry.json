@@ -1,0 +1,51 @@
+{
+  "name": "JournalEntry",
+  "fields": [
+    {
+      "fieldName": "transactionDate",
+      "fieldType": "LocalDate",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "transactionState",
+      "fieldType": "TransactionState",
+      "fieldValues": "PENDING,PROCESSED",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "note",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "message",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "transaction",
+      "otherEntityRelationshipName": "journalEntry",
+      "relationshipName": "transactions"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "transactionType",
+      "otherEntityRelationshipName": "journalEntry",
+      "relationshipName": "transactionType",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20200816064239",
+  "entityTableName": "journal_entry",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "accounting",
+  "applications": "*",
+  "microserviceName": "accounting"
+}

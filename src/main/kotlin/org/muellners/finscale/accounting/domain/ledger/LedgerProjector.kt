@@ -5,8 +5,9 @@ import org.axonframework.queryhandling.QueryHandler
 import org.muellners.finscale.accounting.domain.ledger.events.LedgerCreatedEvent
 import org.muellners.finscale.accounting.domain.ledger.events.LedgerDeletedEvent
 import org.muellners.finscale.accounting.domain.ledger.events.LedgerModifiedEvent
+import org.muellners.finscale.accounting.domain.ledger.events.LedgerTotalAdjustedEvent
 import org.muellners.finscale.accounting.domain.ledger.exceptions.LedgerNotFoundException
-import org.muellners.finscale.accounting.domain.ledger.queries.FindAllLedgerQuery
+import org.muellners.finscale.accounting.domain.ledger.queries.FindAllLedgersQuery
 import org.muellners.finscale.accounting.domain.ledger.queries.FindLedgerQuery
 import org.muellners.finscale.accounting.domain.ledger.queries.LedgerIdentifierExistsQuery
 import org.muellners.finscale.accounting.domain.ledger.queries.SubLedgersExistQuery
@@ -22,10 +23,10 @@ class LedgerProjector(
     @EventHandler
     fun on(event: LedgerCreatedEvent) {
         val parentLedger = if (event.parentLedgerId != null)
-            LedgerView(id = event.parentLedgerId.toString()) else null
+            LedgerView(id = event.parentLedgerId) else null
 
         val ledgerView = LedgerView(
-            id = event.id.toString(),
+            id = event.ledgerId,
             identifier = event.identifier,
             name = event.name,
             type = event.type,
@@ -40,7 +41,7 @@ class LedgerProjector(
 
     @EventHandler
     fun on(event: LedgerModifiedEvent) {
-        val optionalLedgerView = ledgerViewRepository.findById(event.id.toString())
+        val optionalLedgerView = ledgerViewRepository.findById(event.id)
         val ledgerView = if (optionalLedgerView.isPresent)
             optionalLedgerView.get() else
             throw LedgerNotFoundException()
@@ -53,7 +54,20 @@ class LedgerProjector(
     }
 
     @EventHandler
-    fun on(event: LedgerDeletedEvent) = ledgerViewRepository.deleteById(event.id.toString())
+    fun on(event: LedgerDeletedEvent) = ledgerViewRepository.deleteById(event.id)
+
+    @EventHandler
+    fun on(event: LedgerTotalAdjustedEvent) {
+        val optionalLedgerView = ledgerViewRepository.findById(event.ledgerId)
+
+        if (!optionalLedgerView.isPresent) {
+            throw LedgerNotFoundException()
+        }
+
+        val ledgerView = optionalLedgerView.get()
+        ledgerView.totalValue = event.currentTotalValue
+        ledgerViewRepository.save(ledgerView)
+    }
 
     @QueryHandler
     fun handle(query: FindLedgerQuery): LedgerView {
@@ -67,7 +81,7 @@ class LedgerProjector(
     }
 
     @QueryHandler
-    fun handle(query: FindAllLedgerQuery) = ledgerViewRepository.findAll()
+    fun handle(query: FindAllLedgersQuery) = ledgerViewRepository.findAll()
 
     @QueryHandler
     fun handle(query: LedgerIdentifierExistsQuery): Boolean = ledgerViewRepository
@@ -80,6 +94,6 @@ class LedgerProjector(
             optionalParentLedgerView.get() else
             throw LedgerNotFoundException()
 
-        return parentLedgerView.subledgerViews.size > 0
+        return parentLedgerView.subledgers.size > 0
     }
 }

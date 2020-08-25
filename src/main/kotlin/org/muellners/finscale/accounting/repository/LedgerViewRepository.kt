@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository
  */
 @Suppress("unused")
 @Repository
-interface LedgerViewRepository : JpaRepository<LedgerView, String> {
+interface LedgerViewRepository : JpaRepository<LedgerView, UUID> {
     fun findByIdentifier(identifier: String): Optional<LedgerView>
 }

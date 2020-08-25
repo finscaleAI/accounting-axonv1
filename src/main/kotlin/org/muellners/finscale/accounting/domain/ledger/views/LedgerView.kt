@@ -8,17 +8,18 @@ import javax.persistence.*
 import javax.validation.constraints.*
 import org.hibernate.annotations.Cache
 import org.hibernate.annotations.CacheConcurrencyStrategy
-import org.muellners.finscale.accounting.domain.AccountType
+import org.muellners.finscale.accounting.domain.enumeration.LedgerType
 
 /**
- * A LedgerView.
+ * A Ledger.
  */
 @Entity
-@Table(name = "ledger_view")
+@Table(name = "ledger")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 data class LedgerView(
     @Id
-    var id: String? = null,
+    var id: UUID? = null,
+
     @get: NotNull
     @Column(name = "identifier", nullable = false, unique = true)
     var identifier: String? = null,
@@ -27,24 +28,28 @@ data class LedgerView(
     @Column(name = "name", nullable = false)
     var name: String? = null,
 
-    @Column(name = "type")
-    var type: AccountType? = null,
+    @get: NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    var type: LedgerType? = null,
 
     @Column(name = "description")
     var description: String? = null,
 
-    @Column(name = "total_value", precision = 21, scale = 2)
-    var totalValue: BigDecimal? = null,
+    @get: NotNull
+    @Column(name = "total_value", precision = 21, scale = 2, nullable = false)
+    var totalValue: BigDecimal = BigDecimal.ZERO,
 
-    @Column(name = "show_accounts_in_chart")
+    @get: NotNull
+    @Column(name = "show_accounts_in_chart", nullable = false)
     var showAccountsInChart: Boolean? = null,
 
-    @ManyToOne
-    @JsonIgnoreProperties(value = ["parentLedger"], allowSetters = true)
-    var parentLedger: LedgerView? = null,
-
     @OneToMany(mappedBy = "parentLedger")
-    var subledgerViews: MutableList<LedgerView> = mutableListOf()
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    var subledgers: MutableSet<LedgerView> = mutableSetOf(),
+
+    @ManyToOne @JsonIgnoreProperties(value = ["ledgers"], allowSetters = true)
+    var parentLedger: LedgerView? = null
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 ) : Serializable {
@@ -59,7 +64,7 @@ data class LedgerView(
 
     override fun hashCode() = 31
 
-    override fun toString() = "LedgerView{" +
+    override fun toString() = "Ledger{" +
         "id=$id" +
         ", identifier='$identifier'" +
         ", name='$name'" +

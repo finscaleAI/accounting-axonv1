@@ -1,0 +1,42 @@
+{
+  "name": "LedgerAccountAction",
+  "fields": [
+    {
+      "fieldName": "action",
+      "fieldType": "AccountAction",
+      "fieldValues": "LOCK,UNLOCK,CLOSE,REOPEN",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "comment",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "occuredAt",
+      "fieldType": "ZonedDateTime",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "ledgerAccount",
+      "otherEntityRelationshipName": "actions",
+      "relationshipName": "ledgerAccount",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20200816064039",
+  "entityTableName": "ledger_account_action",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "accounting",
+  "applications": "*",
+  "microserviceName": "accounting"
+}

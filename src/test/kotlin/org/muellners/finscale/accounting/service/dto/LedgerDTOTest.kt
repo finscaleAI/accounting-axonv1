@@ -9,15 +9,15 @@ class LedgerDTOTest {
     @Test
     fun dtoEqualsVerifier() {
         equalsVerifier(LedgerDTO::class)
-        val ledgerViewDTO1 = LedgerDTO()
-        ledgerViewDTO1.id = 1L
-        val ledgerViewDTO2 = LedgerDTO()
-        assertThat(ledgerViewDTO1).isNotEqualTo(ledgerViewDTO2)
-        ledgerViewDTO2.id = ledgerViewDTO1.id
-        assertThat(ledgerViewDTO1).isEqualTo(ledgerViewDTO2)
-        ledgerViewDTO2.id = 2L
-        assertThat(ledgerViewDTO1).isNotEqualTo(ledgerViewDTO2)
-        ledgerViewDTO1.id = null
-        assertThat(ledgerViewDTO1).isNotEqualTo(ledgerViewDTO2)
+        val ledgerDTO1 = LedgerDTO()
+        ledgerDTO1.id = 1L
+        val ledgerDTO2 = LedgerDTO()
+        assertThat(ledgerDTO1).isNotEqualTo(ledgerDTO2)
+        ledgerDTO2.id = ledgerDTO1.id
+        assertThat(ledgerDTO1).isEqualTo(ledgerDTO2)
+        ledgerDTO2.id = 2L
+        assertThat(ledgerDTO1).isNotEqualTo(ledgerDTO2)
+        ledgerDTO1.id = null
+        assertThat(ledgerDTO1).isNotEqualTo(ledgerDTO2)
     }
 }

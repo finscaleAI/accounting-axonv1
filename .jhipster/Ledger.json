@@ -1,0 +1,69 @@
+{
+  "name": "Ledger",
+  "fields": [
+    {
+      "fieldName": "identifier",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique"]
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "type",
+      "fieldType": "LedgerType",
+      "fieldValues": "ASSET,LIABILITY,EQUITY,REVENUE,EXPENSE",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "totalValue",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "showAccountsInChart",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "ledger",
+      "otherEntityRelationshipName": "ledger",
+      "relationshipName": "subledgers"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "ledger",
+      "otherEntityRelationshipName": "ledger",
+      "relationshipName": "parentLedger",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "ledger",
+      "otherEntityRelationshipName": "subledgers",
+      "relationshipName": "ledger",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20200816063839",
+  "entityTableName": "ledger",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "accounting",
+  "applications": "*",
+  "microserviceName": "accounting"
+}

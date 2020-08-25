@@ -1,0 +1,80 @@
+{
+  "name": "LedgerAccount",
+  "fields": [
+    {
+      "fieldName": "identifier",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique"]
+    },
+    {
+      "fieldName": "alternativeAccountNumber",
+      "fieldType": "String",
+      "fieldValidateRules": ["unique"]
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "type",
+      "fieldType": "LedgerType",
+      "fieldValues": "ASSET,LIABILITY,EQUITY,REVENUE,EXPENSE",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "holders",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "signatureAuthorities",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "state",
+      "fieldType": "AccountState",
+      "fieldValues": "OPEN,LOCKED,CLOSED",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "balance",
+      "fieldType": "BigDecimal"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "ledgerAccountAction",
+      "otherEntityRelationshipName": "ledgerAccount",
+      "relationshipName": "actions"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "ledger",
+      "otherEntityRelationshipName": "ledgerAccount",
+      "relationshipName": "ledger",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "ledgerAccount",
+      "otherEntityRelationshipName": "ledgerAccount",
+      "relationshipName": "referenceAccount",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20200816063939",
+  "entityTableName": "ledger_account",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "accounting",
+  "applications": "*",
+  "microserviceName": "accounting"
+}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+    <!--
+        Added the constraints for entity JournalEntry.
+    -->
+    <changeSet id="20200818131721-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="transaction_type_id"
+                                 baseTableName="journal_entry"
+                                 constraintName="fk_journal_entry_transaction_type_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="transaction_type"/>
+
+    </changeSet>
+</databaseChangeLog>
